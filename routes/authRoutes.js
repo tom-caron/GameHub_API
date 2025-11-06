@@ -2,22 +2,23 @@ const express = require('express');
 const router = express.Router();
 router.use(express.json());
 const validate = require('../middlewares/validate');
-const usersSchema = require('../validations/usersSchema');
+const {playerCreateSchema, playerConnectSchema} = require('../validations/playersSchema');
 const authController = require('../controllers/authController');
+
 
 /**
  * @swagger
  * tags:
- *   name: Authentification
- *   description: Gestion de la connexion
+ *   name: Authentification des joueurs
+ *   description: Gestion de la connexion des joueurs
  */
 
 /**
  * @swagger
- * /login:
+ * /auth/login:
  *   post:
  *     summary: Permet de se connecter et d'obtenir un token JWT
- *     tags: [Authentification]
+ *     tags: [Authentification des joueurs]
  *     requestBody:
  *       required: true
  *       content:
@@ -73,7 +74,7 @@ const authController = require('../controllers/authController');
  *                  type: string
  *                  example: "auth/login"
  *       404:
- *         description: Utilisateur non trouvé
+ *         description: Joueur non trouvé
  *         content:
  *           application/json:
  *             schema:
@@ -86,7 +87,7 @@ const authController = require('../controllers/authController');
  *                     example: "Error"
  *                   message:
  *                     type: string
- *                     example: "Utilisateur non trouvé"
+ *                     example: "Joueur non trouvé"
  *                   timestamp:
  *                     type: string
  *                     example: "2023-10-05T12:34:56.789Z"
@@ -95,14 +96,14 @@ const authController = require('../controllers/authController');
  *                     example: "auth/login"
  * 
  */
-router.post('/login', validate(usersSchema), authController.login);
+router.post('/login', validate(playerConnectSchema), authController.login);
 
 /**
  * @swagger
- * /register:
+ * /auth/register:
  *   post:
- *     summary: Permet de s'inscrire en tant que nouvel utilisateur
- *     tags: [Authentification]
+ *     summary: Permet de s'inscrire en tant que nouveau joueur
+ *     tags: [Authentification des joueurs]
  *     requestBody:
  *       required: true
  *       content:
@@ -113,6 +114,7 @@ router.post('/login', validate(usersSchema), authController.login);
  *               - email
  *               - password
  *               - role
+ *               - username
  *             properties:
  *               email:
  *                 type: string
@@ -126,9 +128,13 @@ router.post('/login', validate(usersSchema), authController.login);
  *                 type: string
  *                 description: Rôle de l'utilisateur
  *                 example: "user"
+ *               username:
+ *                 type: string
+ *                 description: Nom d'utilisateur
+ *                 example: "Coyototo27"
  *     responses:
  *       201:
- *         description: Utilisateur créé avec succès
+ *         description: Joueur créé avec succès
  *         content:
  *           application/json:
  *             schema:
@@ -136,12 +142,12 @@ router.post('/login', validate(usersSchema), authController.login);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Utilisateur créé avec succès"
+ *                   example: "Joueur créé avec succès"
  *                 code:
  *                   type: integer
  *                   example: 201
  *       400:
- *         description: Utilisateur déjà existant
+ *         description: Joueur déjà existant
  *         content:
  *           application/json:
  *             schema:
@@ -152,7 +158,7 @@ router.post('/login', validate(usersSchema), authController.login);
  *                   example: "Error"
  *                 message:
  *                   type: string
- *                   example: "Utilisateur déjà existant"
+ *                   example: "Joueur déjà existant"
  *                 timestamp:
  *                   type: string
  *                   example: "2023-10-05T12:34:56.789Z"
@@ -161,6 +167,6 @@ router.post('/login', validate(usersSchema), authController.login);
  *                  example: "auth/register"
  * 
  */
-router.post('/register', validate(usersSchema), authController.register);
+router.post('/register', validate(playerCreateSchema), authController.register);
 
 module.exports = router;

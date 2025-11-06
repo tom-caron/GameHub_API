@@ -1,37 +1,47 @@
-const bcrypt = require('bcrypt');	
 const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
+const Player = require('../models/playerModel');
 
 const authService = {
 
-    registerUser: async (email, password, role = 'user') => {
+    registerPlayer: async (email, username, password, role = 'player') => {
         // Vérifier si l'utilisateur existe déjà
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            const err = new Error('Utilisateur déjà existant');
-            err.status = 400;
-            throw err;
+        const existing = await Player.findOne({
+        $or: [
+            { email },
+            { username }
+        ]
+        });
+
+        if (existing) {
+        let err;
+        if (existing.email === email) {
+            err = new Error('Email déjà utilisé');
+        } else {
+            err = new Error('Username déjà utilisé');
+        }
+        err.status = 400;
+        throw err;
         }
 
         // Création de l'utilisateur
-        const user = new User({ email, password, role });
-        await user.save(); // le password sera hashé grâce au pre-save
+        const player = new Player({ email, username, password, role });
+        await player.save(); // le password sera hashé grâce au pre-save
 
-        return user;
+        return player;
     },
 
 
-    loginUser: async (email, password) => {
+    loginPlayer: async (email, password) => {
         // Chercher l'utilisateur par email
-        const user = await User.findOne({ email });
-        if (!user) {
-            const err = new Error('Utilisateur non trouvé');
+        const player = await Player.findOne({ email });
+        if (!player) {
+            const err = new Error('Joueur non trouvé');
             err.status = 404;
             throw err;
         }
 
         // Vérifier le mot de passe
-        const passwordMatch = await user.comparePassword(password);
+        const passwordMatch = await player.comparePassword(password);
         if (!passwordMatch) {
             const err = new Error('Mot de passe incorrect');
             err.status = 401;
@@ -40,13 +50,14 @@ const authService = {
 
         // Générer le token JWT
         const token = jwt.sign(
-            { id: user._id, email: user.email, role: user.role },
+            { id: player._id },
             process.env.SECRET_KEY,
             { expiresIn: '1h' }
         );
 
         return token;
     },
+
 };
 
 module.exports = authService;

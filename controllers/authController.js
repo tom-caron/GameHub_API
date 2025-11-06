@@ -4,12 +4,12 @@ const authController = {
 
     register: async (req, res, next) => {
         try {
-            const { email, password, role } = req.body;
+            const { email, username, password, role } = req.body;
 
-            await authService.registerUser(email, password, role);
+            await authService.registerPlayer(email, username, password, role);
 
             return res.status(201).json({
-                message: 'Utilisateur créé avec succès',
+                message: 'Joueur créé avec succès',
                 code: 201
             });
         } catch (error) {
@@ -17,12 +17,11 @@ const authController = {
         }
     },
 
-
     login: async (req, res, next) => {
         try {
             const { email, password } = req.body;
 
-            const token = await authService.loginUser(email, password);
+            const token = await authService.loginPlayer(email, password);
 
             return res.status(200).json({
                 message: 'Connexion réussie',
@@ -33,6 +32,7 @@ const authController = {
             next(error);
         }
     },
+
 };
 
 module.exports = authController;
