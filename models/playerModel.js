@@ -38,9 +38,6 @@ const PlayerSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-PlayerSchema.index({ username: 1 });
-PlayerSchema.index({ email: 1 });
-
 PlayerSchema.statics.topPlayers = function (limit = 5) {
 return this.find()
 .sort({ totalScore: -1 })

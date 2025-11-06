@@ -9,19 +9,19 @@ const authMiddleware = require('../middlewares/authMiddleware');
 /**
  * @swagger
  * tags:
- *   name: CRUD Player
- *   description: Gestion des informations des joueurs
+ *   name: CRUD Game
+ *   description: Gestion des informations des Jeux
  */
 
 /**
  * @swagger
- * /api/players:
+ * /api/games:
  *   get:
- *     summary: Récupère les joueurs
- *     tags: [Player]
+ *     summary: Récupère tous les jeux
+ *     tags: [Game]
  *     responses:
  *       200:
- *         description: Liste des joueurs récupérée avec succès
+ *         description: Liste des jeux récupérée avec succès
  *         content:
  *           application/json:
  *             schema:
@@ -137,7 +137,7 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), playersCo
 
 /**
  * @swagger
- * /players/{id}:
+ * /auth/{id}:
  *   post:
  *     summary: Permet de modifer les informations d'un joueur (admin ou soi-même)
  *     tags: [Player]
@@ -201,7 +201,7 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), playersCo
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "players/{id}"
+ *                  example: "auth/{id}"
  *       404:
  *         description: Player introuvable
  *         content:
@@ -220,14 +220,14 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), playersCo
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "players/{id}"
+ *                  example: "auth/{id}"
  * 
  */
 router.put('/:id', authMiddleware.requireSelfOrAdmin, validate(playerUpdateSchema), playersController.updatePlayer);
 
 /**
  * @swagger
- * /players/{id}:
+ * /auth/{id}:
  *   delete:
  *     summary: Supprime un joueur par son identifiant
  *     tags: [Player]
@@ -270,7 +270,7 @@ router.put('/:id', authMiddleware.requireSelfOrAdmin, validate(playerUpdateSchem
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "/api/players/6909cb645d25fcfd3c0cadd5"
+ *                  example: "/api/books/1"
  *       401:
  *         description: Vous devez être connecté pour accéder à cette ressource
  *         content:
@@ -289,7 +289,7 @@ router.put('/:id', authMiddleware.requireSelfOrAdmin, validate(playerUpdateSchem
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "/api/players/6909cb645d25fcfd3c0cadd5"
+ *                  example: "/api/books/1"
  *       403:
  *         description: Accès refusé. Vous ne pouvez modifier que votre propre compte
  *         content:
@@ -308,7 +308,7 @@ router.put('/:id', authMiddleware.requireSelfOrAdmin, validate(playerUpdateSchem
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "/players/6909cb645d25fcfd3c0cadd5"
+ *                  example: "/auth/{id}"
  */
 router.delete('/:id', authMiddleware.requireSelfOrAdmin, playersController.deletePlayer);
 
