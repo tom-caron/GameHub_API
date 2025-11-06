@@ -1,0 +1,33 @@
+# README
+
+Ce document explique comment lancer le projet localement et comment tester les fonctionnalités.
+
+## Prérequis
+- Node.jsn, MongoDB et npm installés sur la machine.
+
+## Installation
+1. Ouvrir un terminal à la racine du projet.
+2. Installer les dépendances :  
+   ```bash
+   npm install
+3. Lancer le projet :
+    ```bash
+    npm start
+4. Aller à l'adresse http://localhost:3000
+
+## Utilisation
+- Le projet est une API REST pour gérer des livres et des auteurs.
+- Une interface frontend simple est disponible dans le dossier frontend pour s'inscrire, se connecter, ajouter, lister et supprimer des livres et auteurs.
+- Vous pouvez également utiliser Postman pour utiliser toutes les API existantes
+
+## Restrictions API
+- Les accès aux routes de l’API sont protégés par des rôles.
+- Copier le contenu du fichier `.env.exemple` et coller le dans un fichier `.env` que vous aurait crée
+- Pour tester l'app vous devrez tout d'abord vous connecter à l'ardresse http://localhost:3000/. De toute façon vous ne pourrez utiliser aucune route API tant qua vous n'êtes identifier.
+Lors de l'inscription, vous aurez la possibilité de choisir votre rôle (user ou admin) ce qui influera sur vos accès aux routes par la suite.
+Le rôle Utilisateur aura accès aux routes uniquement en lecture (GET)
+Le rôle Administrateur aura accès à tous (GET, POST, PUT, DELETE).
+
+## Notes
+- La documentation Swagger de l'API est disponible à l’URL : http://localhost:3000/docs
+- Le frontend est servi directement par le serveur Express et est accessible depuis l’URL racine `/`.
