@@ -16,4 +16,14 @@ const GenreSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
+GenreSchema.methods.safeProfile = function () {
+    return {
+        id: this._id,
+        name: this.name,
+        slug: this.slug,
+        createdAt: this.createdAt,
+        updatedAt: this.updatedAt
+    };
+};
+
 module.exports = mongoose.model('Genre', GenreSchema);

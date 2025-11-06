@@ -13,6 +13,7 @@ const authMiddleware = require('./middlewares/authMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const playersRoutes = require('./routes/playersRoutes');
 const platformsRoutes = require('./routes/platformsRoutes');
+const genresRoutes = require('./routes/genresRoutes');
 
 connectDB();
 setupSwagger(app);
@@ -32,6 +33,7 @@ app.use('/auth', authRoutes);
 app.use('/api',authMiddleware.authenticate);
 app.use('/api/players', playersRoutes);
 app.use('/api/platforms', platformsRoutes);
+app.use('/api/genres', genresRoutes);
 app.use(booksRoutes);
 app.use(authorsRoutes);
 
