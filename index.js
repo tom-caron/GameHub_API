@@ -2,12 +2,9 @@ const express = require('express');
 const app = express();
 require('dotenv').config();
 const cors = require('cors');
-const path = require('path');
 const connectDB = require('./config/database');
 const setupSwagger = require('./docs/swagger');
 const indexRoutes = require('./routes/indexRoutes');
-const booksRoutes = require('./routes/booksRoutes');
-const authorsRoutes = require('./routes/authorsRoutes');
 const errorMiddleware = require('./middlewares/errorMiddleware');
 const authMiddleware = require('./middlewares/authMiddleware');
 const authRoutes = require('./routes/authRoutes');
@@ -15,6 +12,7 @@ const playersRoutes = require('./routes/playersRoutes');
 const platformsRoutes = require('./routes/platformsRoutes');
 const genresRoutes = require('./routes/genresRoutes');
 const gamesRoutes = require('./routes/gamesRoutes');
+const sessionsRoutes = require('./routes/sessionsRoutes');
 
 connectDB();
 setupSwagger(app);
@@ -36,8 +34,7 @@ app.use('/api/players', playersRoutes);
 app.use('/api/platforms', platformsRoutes);
 app.use('/api/genres', genresRoutes);
 app.use('/api/games', gamesRoutes);
-app.use(booksRoutes);
-app.use(authorsRoutes);
+app.use('/api/sessions', sessionsRoutes);
 
 
 

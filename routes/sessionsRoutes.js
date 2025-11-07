@@ -2,23 +2,23 @@ const express = require('express');
 const router = express.Router();
 router.use(express.json());
 const validate = require('../middlewares/validate');
-const {gameCreateSchema, gameUpdateSchema} = require('../validations/gamesSchema');
-const gamesController = require('../controllers/gamesController');
+const {sessionCreateSchema, sessionUpdateSchema} = require('../validations/sessionsSchema');
+const sessionsController = require('../controllers/sessionsController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
  * tags:
- *   name: CRUD Game
- *   description: Gestion des informations des Jeux
+ *   name: CRUD Seesion
+ *   description: Gestion des informations des sessions de jeu
  */
 
 /**
  * @swagger
- * /api/games:
+ * /api/sessions:
  *   post:
- *     summary: Crée un nouveau jeu (admin)
- *     tags: [Game]
+ *     summary: Crée une nouvelle session (admin ou soi-même)
+ *     tags: [Session]
  *     requestBody:
  *       required: true
  *       content:
@@ -26,30 +26,20 @@ const authMiddleware = require('../middlewares/authMiddleware');
  *           schema:
  *             type: object
  *             required:
- *               - title
- *               - slug
- *               - genre
- *               - platform
+ *               - player
+ *               - game
  *             properties:
- *               title:
+ *               player:
  *                 type: string
- *                 description: Titre du jeu
- *                 example: "Smash Bros Ultimate"
- *               slug:
+ *                 description: Joueur de la session
+ *                 example: "Coyototo27"
+ *               game:
  *                 type: string
- *                 description: Slug du jeu
+ *                 description: Jeu de la session
  *                 example: "smash-bros-ultimate"
- *               genre:
- *                 type: string
- *                 description: Genre du jeu
- *                 example: "Action"
- *               platform:
- *                 type: string
- *                 description: Plateforme du jeu
- *                 example: "Nintendo Switch"
  *     responses:
  *       201:
- *         description: Jeu créé avec succès
+ *         description: Session créé avec succès
  *         content:
  *           application/json:
  *             schema:
@@ -61,18 +51,14 @@ const authMiddleware = require('../middlewares/authMiddleware');
  *                     id:
  *                       type: integer
  *                       example: 690c84eb82bfae77c38ae17c
- *                     title:
+ *                     player:
  *                       type: string
- *                       example: "Smash Bros Ultimate"
- *                     slug:
+ *                       description: Joueur de la session
+ *                       example: "Coyototo27"
+ *                     game:
  *                       type: string
+ *                       description: Jeu de la session
  *                       example: "smash-bros-ultimate"
- *                     genre:
- *                       type: string
- *                       example: "Action"
- *                     platform:
- *                       type: string
- *                       example: "Nintendo Switch"
  *                 message:
  *                   type: string
  *                   example: "Jeu créé avec succès"
@@ -91,13 +77,13 @@ const authMiddleware = require('../middlewares/authMiddleware');
  *                   example: "Error"
  *                 message:
  *                   type: string
- *                   example: "Le champ title et slug est requis"
+ *                   example: "Le champ player et game est requis"
  *                 timestamp:
  *                   type: string
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                   type: string
- *                   example: "/api/games/"
+ *                   example: "/api/session/"
  *       401:
  *         description: Vous devez être connecté pour accéder à cette ressource
  *         content:
@@ -116,7 +102,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "/api/games/"
+ *                  example: "/api/sessions/"
  *       403:
  *         description: Accès refusé. Rôle insuffisant
  *         content:
@@ -135,19 +121,19 @@ const authMiddleware = require('../middlewares/authMiddleware');
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "/api/games/"
+ *                  example: "/api/sessions/"
  */
-router.post('', authMiddleware.authorizeRoles(['admin']), validate(gameCreateSchema), gamesController.createGame);
+router.post('', authMiddleware.authorizeRoles(['admin']), validate(sessionCreateSchema), sessionsController.createSession);
 
 /**
  * @swagger
- * /api/games:
+ * /api/sessions:
  *   get:
- *     summary: Récupère tous les jeux
- *     tags: [Game]
+ *     summary: Récupère toutes les sessions de jeu
+ *     tags: [Session]
  *     responses:
  *       200:
- *         description: Liste des jeux récupérée avec succès
+ *         description: Liste des sessions récupérée avec succès
  *         content:
  *           application/json:
  *             schema:
@@ -159,44 +145,38 @@ router.post('', authMiddleware.authorizeRoles(['admin']), validate(gameCreateSch
  *                     id:
  *                       type: string
  *                       example: 690c6b590c78dc05ac975035
- *                     title:
+ *                     player:
  *                       type: string
- *                       example: "Smash Bros Ultimate"
- *                     slug:
+ *                       example: "Coyototo27"
+ *                     game:
  *                       type: string
- *                       example: "smash-bros-ultimate"
- *                     genre:
- *                       type: string
- *                       example: "Action"
- *                     platform:
- *                       type: string
- *                       example: "Nintendo Switch"
+ *                       example: "DeadByDaylight"
  *                 message:
  *                   type: string
- *                   example: "Liste des jeux récupérées avec succès"
+ *                   example: "Liste des sessions de jeux récupérées avec succès"
  *                 code:
  *                   type: integer
  *                   example: 200
  * 
  */
-router.get('', authMiddleware.authorizeRoles(['admin', 'player']), gamesController.getAllGames);
+router.get('', authMiddleware.authorizeRoles(['admin', 'player']), sessionsController.getAllSessions);
 
 /**
  * @swagger
- * /api/games/{id}:
+ * /api/sessions/{id}:
  *   get:
- *     summary: Récupère un jeu par son identifiant
- *     tags: [Game]
+ *     summary: Récupère une sessions par son identifiant
+ *     tags: [Session]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: Identifiant du jeu à récupérer
+ *         description: Identifiant de la session à récupérer
  *     responses:
  *       200:
- *         description: Jeu récupéré avec succès
+ *         description: Session récupéré avec succès
  *         content:
  *           application/json:
  *             schema:
@@ -208,21 +188,15 @@ router.get('', authMiddleware.authorizeRoles(['admin', 'player']), gamesControll
  *                     id:
  *                       type: string
  *                       example: 690c6b590c78dc05ac975035
- *                     title:
+ *                     player:
  *                       type: string
- *                       example: "Smash Bros Ultimate"
- *                     slug:
+ *                       example: "Coyototo27"
+ *                     game:
  *                       type: string
- *                       example: "smash-bros-ultimate"
- *                     genre:
- *                       type: string
- *                       example: "Action"
- *                     platform:
- *                       type: string
- *                       example: "Nintendo Switch"
+ *                       example: "DeadByDaylight"
  *                 message:
  *                   type: string
- *                   example: "Jeu récupéré avec succès"
+ *                   example: "Session récupéré avec succès"
  *                 code:
  *                   type: integer
  *                   example: 200
@@ -244,9 +218,9 @@ router.get('', authMiddleware.authorizeRoles(['admin', 'player']), gamesControll
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "/api/games/690c8142e30a79d9b01033df"
+ *                  example: "/api/sessions/690c8142e30a79d9b01033df"
  *       404:
- *         description: Jeu introuvable
+ *         description: Session introuvable
  *         content:
  *           application/json:
  *             schema:
@@ -257,53 +231,57 @@ router.get('', authMiddleware.authorizeRoles(['admin', 'player']), gamesControll
  *                   example: "Error"
  *                 message:
  *                   type: string
- *                   example: "Jeu introuvable"
+ *                   example: "Session introuvable"
  *                 timestamp:
  *                   type: string
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                   type: string
- *                   example: "/api/games/690c8142e30a79d9b01033df"
+ *                   example: "/api/sessions/690c8142e30a79d9b01033df"
  */
-router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), gamesController.getGameById);
+router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), sessionsController.getSessionById);
 
 /**
  * @swagger
- * /api/games/{id}:
+ * /api/sessions/{id}:
  *   post:
- *     summary: Permet de modifer les informations d'un jeu (admin)
- *     tags: [Game]
+ *     summary: Permet de modifer les informations d'une session de jeu (admin ou soi-même)
+ *     tags: [Session]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - title
- *               - slug
- *               - genre
- *               - platform
+ *             optional:
+ *               - player
+ *               - game
+ *               - durationSeconds
+ *               - score
+ *               - active
  *             properties:
- *               title:
+ *               player:
  *                 type: string
- *                 description: Titre du jeu
+ *                 description: Pseudo du joueur de la session
+ *                 example: "Coyototo27"
+ *               game:
+ *                 type: string
  *                 example: "Smash Bros Ultimate"
- *               slug:
- *                 type: string
- *                 description: Slug du jeu
- *                 example: "smash-bros-ultimate"
- *               genre:
- *                 type: string
- *                 description: Genre du jeu
- *                 example: "Action"
- *               platform:
- *                 type: string
- *                 description: Plateforme du jeu
- *                 example: "Nintendo Switch"
+ *               durationSeconds:
+ *                 type: integer
+ *                 description: Durée de la session en secondes
+ *                 example: 3600
+ *               score:
+ *                 type: integer
+ *                 description: Score obtenu lors de la session
+ *                 example: 1500
+ *               active:
+ *                 type: boolean
+ *                 description: Indique si la session est active
+ *                 example: true
  *     responses:
  *       200:
- *         description: Jeu mis à jour avec succès
+ *         description: Session mis à jour avec succès
  *         content:
  *           application/json:
  *             schema:
@@ -311,12 +289,12 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), gamesCont
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Jeu mis à jour avec succès"
+ *                   example: "Session mis à jour avec succès"
  *                 code:
  *                   type: integer
  *                   example: 200
  *       400:
- *         description: Titre déjà utilisé ou slug déjà utilisé
+ *         description: Joueur déjà dans une autre session
  *         content:
  *           application/json:
  *             schema:
@@ -327,15 +305,15 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), gamesCont
  *                   example: "Error"
  *                 message:
  *                   type: string
- *                   example: "Titre déjà utilisé"
+ *                   example: "Joueur déjà dans une autre session"
  *                 timestamp:
  *                   type: string
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "auth/{id}"
+ *                  example: "api/sessions/{id}"
  *       404:
- *         description: Jeu introuvable
+ *         description: Session introuvable
  *         content:
  *           application/json:
  *             schema:
@@ -346,33 +324,33 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), gamesCont
  *                   example: "Error"
  *                 message:
  *                   type: string
- *                   example: "Jeu introuvable"
+ *                   example: "Session introuvable"
  *                 timestamp:
  *                   type: string
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "api/games/{id}"
+ *                  example: "api/sessions/{id}"
  * 
  */
-router.put('/:id', authMiddleware.requireSelfOrAdmin, validate(gameUpdateSchema), gamesController.updateGame);
+router.put('/:id', authMiddleware.requireSelfOrAdmin, validate(sessionUpdateSchema), sessionsController.updateSession);
 
 /**
  * @swagger
- * /api/games/{id}:
+ * /api/sessions/{id}:
  *   delete:
- *     summary: Supprime un jeu par son identifiant
- *     tags: [Game]
+ *     summary: Supprime une session par son identifiant
+ *     tags: [Session]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: Identifiant du jeu à supprimer
+ *         description: Identifiant de la session à supprimer
  *     responses:
  *       200:
- *         description: Jeu supprimé avec succès
+ *         description: Session supprimé avec succès
  *         content:
  *           application/json:
  *             schema:
@@ -380,12 +358,12 @@ router.put('/:id', authMiddleware.requireSelfOrAdmin, validate(gameUpdateSchema)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Jeu supprimé avec succès"
+ *                   example: "Session supprimé avec succès"
  *                 code:
  *                   type: integer
  *                   example: 200
  *       404:
- *         description: Jeu introuvable
+ *         description: Session introuvable
  *         content:
  *           application/json:
  *             schema:
@@ -396,13 +374,13 @@ router.put('/:id', authMiddleware.requireSelfOrAdmin, validate(gameUpdateSchema)
  *                   example: "Error"
  *                 message:
  *                   type: string
- *                   example: "Jeu introuvable"
+ *                   example: "Session introuvable"
  *                 timestamp:
  *                   type: string
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "/api/games/690c6b590c78dc05ac975035"
+ *                  example: "/api/sessions/690c6b590c78dc05ac975035"
  *       401:
  *         description: Vous devez être connecté pour accéder à cette ressource
  *         content:
@@ -421,7 +399,7 @@ router.put('/:id', authMiddleware.requireSelfOrAdmin, validate(gameUpdateSchema)
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "/api/books/690c6b590c78dc05ac975035"
+ *                  example: "/api/sessions/690c6b590c78dc05ac975035"
  *       403:
  *         description: Accès refusé. Vous ne pouvez modifier que votre propre compte
  *         content:
@@ -440,8 +418,8 @@ router.put('/:id', authMiddleware.requireSelfOrAdmin, validate(gameUpdateSchema)
  *                   example: "2023-10-05T12:34:56.789Z"
  *                 path:
  *                  type: string
- *                  example: "/api/games/690c6b590c78dc05ac975035"
+ *                  example: "/api/sessions/690c6b590c78dc05ac975035"
  */
-router.delete('/:id', authMiddleware.authorizeRoles(['admin']), gamesController.deleteGame);
+router.delete('/:id', authMiddleware.authorizeRoles(['admin', 'player']), sessionsController.deleteSession);
 
 module.exports = router;

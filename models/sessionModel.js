@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Player = require('./playerModel');
+const Game = require('./gameModel');
 
 const sessionSchema = new mongoose.Schema({
     player: {
@@ -11,22 +13,30 @@ const sessionSchema = new mongoose.Schema({
         ref: 'Game', 
         required: true 
     },
-    durationSeconds: { 
-        type: Number, 
-        default: 0 
-    }, // store duration in seconds
     score: { 
         type: Number, 
         required: true, 
-        min: 0 
+        min: 0,
+        default: 0
     },
-    notes: { 
-        type: String 
-    },
-    metadata: { 
-        type: mongoose.Schema.Types.Mixed 
-    },
-}, { timestamps: true });
+    active: { 
+        type: Boolean, 
+        default: true 
+    }
+}, { timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+ });
+
+sessionSchema.virtual('durationSeconds').get(function () {
+    if (!this.createdAt) return 0;
+
+    // si session active -> durée = now - createdAt
+    // si session inactive -> durée = updatedAt - createdAt
+    const end = this.active ? new Date() : this.updatedAt;
+
+    return Math.floor((end - this.createdAt) / 1000);
+});
 
 
 sessionSchema.pre('save', async function (next) {
@@ -61,7 +71,7 @@ sessionSchema.post('save', async function (doc) {
         // Ensure game has a reference to the session
         await Game.findByIdAndUpdate(doc.game, { $addToSet: { sessions: doc._id } });
     } catch (err) {
-        return next(err);
+        throw err;
     }
 });
 
