@@ -4,6 +4,7 @@ router.use(express.json());
 const validate = require('../middlewares/validate');
 const {playerCreateSchema, playerConnectSchema} = require('../validations/playersSchema');
 const authController = require('../controllers/authController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 
 /**
@@ -168,5 +169,8 @@ router.post('/login', validate(playerConnectSchema), authController.login);
  * 
  */
 router.post('/register', validate(playerCreateSchema), authController.register);
+
+router.get('/me', authMiddleware.authenticate, authController.getMe);
+
 
 module.exports = router;

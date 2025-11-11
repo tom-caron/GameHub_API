@@ -103,6 +103,16 @@ const playerService = {
         await Player.findByIdAndDelete(id);
     },
 
+    getInfoPlayerByToken: async (id) => {
+        const player = await Player.findById(id).select('_id email username role');
+        if (!player) {
+            const err = new Error('Player introuvable');
+            err.status = 404;
+            throw err;
+        }
+        return player;
+    },
+
 };
 
 module.exports = playerService;

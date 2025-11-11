@@ -6,26 +6,95 @@ const gamesServices = {
 
     getSortGames: async (sort, page = 1, limit = 5) => {
         try {
-            let query = Game.find();
+            page = parseInt(page, 10);
+            limit = parseInt(limit, 10);
 
-            if (sort) {
-                const order = sort.startsWith('-') ? -1 : 1;
-                const field = sort.replace('-', '');
-                query = query.sort({ [field]: order });
+            if (!sort) {
+            // tri par défaut : createdAt desc
+            sort = '-createdAt';
             }
 
-            const total = await Game.countDocuments();
+            const order = sort.startsWith('-') ? -1 : 1;
+            const field = sort.replace('-', '');
 
-            const games = await query
-                .skip((page - 1) * limit)           
-                .populate('genre')
-                .populate('platform') 
+            // Si tri sur champ peuplé : contient un point (ex: platform.name)
+            if (field.includes('.')) {
+            const [refName, refField] = field.split('.'); // ex: ['platform','name']
+
+            // build $lookup stage(s) pour platform et genre (selon ce dont tu as besoin)
+            const lookups = [
+                {
+                $lookup: {
+                    from: 'genres',              // collection name lowercase + s ; adapte éventuellement
+                    localField: 'genre',
+                    foreignField: '_id',
+                    as: 'genre'
+                }
+                },
+                { $unwind: { path: '$genre', preserveNullAndEmptyArrays: true } },
+                {
+                $lookup: {
+                    from: 'platforms',
+                    localField: 'platform',
+                    foreignField: '_id',
+                    as: 'platform'
+                }
+                },
+                { $unwind: { path: '$platform', preserveNullAndEmptyArrays: true } }
+            ];
+
+            // pipeline avec facet pour total + data paginée
+            const pipeline = [
+                // optional: match / filters here
+                ...lookups,
+                // ensure documents where referenced fields might be missing still included
+                { $sort: { [field]: order } },
+                {
+                $facet: {
+                    metadata: [{ $count: 'total' }],
+                    data: [
+                    { $skip: (page - 1) * limit },
+                    { $limit: limit },
+                    // optional projection to keep same fields as .find().populate()
+                    {
+                        $project: {
+                        title: 1,
+                        slug: 1,
+                        genre: 1,
+                        platform: 1,
+                        sessions: 1,
+                        createdAt: 1,
+                        updatedAt: 1
+                        }
+                    }
+                    ]
+                }
+                }
+            ];
+
+            const agg = await Game.aggregate(pipeline).exec();
+            const metadata = agg[0].metadata[0] || { total: 0 };
+            const games = agg[0].data;
+
+            return { games, total: metadata.total };
+
+            } else {
+            // tri sur champ simple (stocké dans Game) : on peut utiliser find() + populate
+            const total = await Game.countDocuments();
+            const games = await Game.find()
+                .sort({ [field]: order })
+                .skip((page - 1) * limit)
                 .limit(limit)
+                .populate('genre')
+                .populate('platform')
                 .exec();
 
-            return { games, total }
+            return { games, total };
+            }
+
         } catch (err) {
-            return next(err);
+            // remonte erreur (ou adapt selon ton pattern de gestion d'erreurs)
+            throw err;
         }
     },
 

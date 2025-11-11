@@ -1,4 +1,6 @@
+const { get } = require('mongoose');
 const authService = require('../services/authService');
+const playersService = require('../services/playersServices');
 
 const authController = {
 
@@ -32,6 +34,19 @@ const authController = {
             next(error);
         }
     },
+
+    getMe: async (req, res, next) => {
+        try {
+            const user = await playersService.getInfoPlayerByToken(req.user.id);
+            return res.status(200).json({
+                user,
+                message: 'Informations récupérées avec succès',
+                code: 200
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 
 };
 
