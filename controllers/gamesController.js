@@ -5,7 +5,7 @@ const gamesController = {
     getAllGames: async (req, res, next) => {
         const sort = req.query.sort;
         const page = parseInt(req.query.page || 1);
-        const limit = parseInt(req.query.limit || 5);
+        const limit = req.query.limit ? parseInt(req.query.limit) : null;
 
         const { games, total } = await gamesService.getSortGames(sort, page, limit, next);
 
@@ -38,7 +38,7 @@ const gamesController = {
         try {
             const { title, slug, genre, platform } = req.body;
 
-            const game = await gamesService.creationGame(title, slug, genre, platform);
+            const game = await gamesService.creationGame(title, slug, genre, platform, next);
 
             res.status(201).json({
                 game,

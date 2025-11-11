@@ -10,7 +10,6 @@ const gamesServices = {
             limit = parseInt(limit, 10);
 
             if (!sort) {
-            // tri par défaut : createdAt desc
             sort = '-createdAt';
             }
 
@@ -82,6 +81,7 @@ const gamesServices = {
             // tri sur champ simple (stocké dans Game) : on peut utiliser find() + populate
             const total = await Game.countDocuments();
             const games = await Game.find()
+                .collation({ locale: 'fr', strength: 1 })
                 .sort({ [field]: order })
                 .skip((page - 1) * limit)
                 .limit(limit)
@@ -93,7 +93,6 @@ const gamesServices = {
             }
 
         } catch (err) {
-            // remonte erreur (ou adapt selon ton pattern de gestion d'erreurs)
             throw err;
         }
     },
@@ -113,11 +112,21 @@ const gamesServices = {
         return game;
     },
 
-    creationGame: async (title, slug, genre, platform) => {
+    creationGame: async (title, slug, genre, platform, next) => {
         if (!title || !slug || !genre || !platform) {
             const err = new Error('Le champ title, slug, genre et platform est requis');
             err.status = 400;
             throw err;
+        }
+
+        const existingGame = await Game.findOne({
+            $or: [{ title: title.trim() }, { slug: slug.trim() }]
+        });
+        
+        if (existingGame) {
+            const err = new Error('Un jeu avec ce nom ou ce slug existe déjà');
+            err.status = 409;
+            return next(err);
         }
 
         // Vérification que le genre existe

@@ -5,7 +5,7 @@ const platformsController = {
     getAllPlatforms: async (req, res, next) => {
         const sort = req.query.sort;
         const page = parseInt(req.query.page || 1);
-        const limit = parseInt(req.query.limit || 5);
+        const limit = req.query.limit ? parseInt(req.query.limit) : null;
 
         const { platforms, total } = await platformsService.getSortPlatforms(sort, page, limit, next);
 

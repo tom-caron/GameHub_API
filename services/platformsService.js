@@ -3,28 +3,32 @@ const Game = require('../models/gameModel');
 
 const platformsService = {
 
-    getSortPlatforms: async (sort, page, limit, next) => {
+    getSortPlatforms: async (sort, page = 1, limit = null, next) => {
         try {
             let query = Platform.find();
 
             if (sort) {
-                const order = sort.startsWith('-') ? -1 : 1;
-                const field = sort.replace('-', '');
-                query = query.sort({ [field]: order });
+            const order = sort.startsWith('-') ? -1 : 1;
+            const field = sort.replace('-', '');
+            query = query
+                .collation({ locale: 'fr', strength: 1 })
+                .sort({ [field]: order });
             }
 
             const total = await Platform.countDocuments();
 
-            const platforms = await query
-                .skip((page - 1) * limit)
-                .limit(limit)
-                .exec();
+            if (limit && limit > 0) {
+            query = query.skip((page - 1) * limit).limit(limit);
+            }
 
-            return { platforms, total }
+            const platforms = await query.exec();
+
+            return { platforms, total };
         } catch (err) {
             return next(err);
         }
     },
+
 
     getOnePlatformId: async (idSearch, next) => {
         try {
@@ -49,6 +53,17 @@ const platformsService = {
                 const err = new Error('Le champ name et slug est requis');
                 err.status = 400;
                 return next(err);
+            }
+
+            // Vérifie si une plateforme existe déjà avec le même nom ou le même slug
+            const existingPlatform = await Platform.findOne({
+            $or: [{ name: name.trim() }, { slug: slug.trim() }]
+            });
+
+            if (existingPlatform) {
+            const err = new Error('Une plateforme avec ce nom ou ce slug existe déjà');
+            err.status = 409; // 409 = Conflict
+            return next(err);
             }
 
             const platform = await Platform.create({ name, slug });
