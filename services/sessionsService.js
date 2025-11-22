@@ -5,34 +5,99 @@ const Game = require('../models/gameModel');
 const sessionsServices = {
 
     getSortSessions: async (sort, page = 1, limit = 5) => {
-        try {
-            let query = Session.find();
+    try {
+        // Définition du tri
+        let sortQuery = {};
+        if (sort) {
+            const order = sort.startsWith('-') ? -1 : 1;
+            const field = sort.replace('-', '');
 
-            if (sort) {
-                const order = sort.startsWith('-') ? -1 : 1;
-                const field = sort.replace('-', '');
-                query = query.sort({ [field]: order });
+            // Support du tri sur player.xxx et game.xxx
+            if (field.startsWith('player.') || field.startsWith('game.')) {
+                sortQuery[field] = order;
+            } else {
+                sortQuery[field] = order;
             }
-
-            const total = await Session.countDocuments();
-
-            const sessions = await query
-                .skip((page - 1) * limit)           
-                .populate('player')
-                .populate('game') 
-                .limit(limit)
-                .exec();
-
-            return { sessions, total }
-        } catch (err) {
-            return next(err);
         }
-    },
+
+        const skip = (page - 1) * limit;
+
+        // Pipeline AGGREGATE
+        const sessions = await Session.aggregate([
+    // Lookup Player
+        {
+            $lookup: {
+                from: 'players',
+                localField: 'player',
+                foreignField: '_id',
+                as: 'player'
+            }
+        },
+        { $unwind: "$player" },
+
+        // Retirer password
+        { $project: { "player.password": 0 } },
+
+        // Lookup Game
+        {
+            $lookup: {
+                from: 'games',
+                localField: 'game',
+                foreignField: '_id',
+                as: 'game'
+            }
+        },
+        { $unwind: "$game" },
+
+        // 👉 Ajouter durationSeconds comme ton virtual
+        {
+            $addFields: {
+                durationSeconds: {
+                    $floor: {
+                        $divide: [
+                            {
+                                $subtract: [
+                                    {
+                                        $cond: [
+                                            "$active",
+                                            new Date(),
+                                            "$updatedAt"
+                                        ]
+                                    },
+                                    "$createdAt"
+                                ]
+                            },
+                            1000
+                        ]
+                    }
+                }
+            }
+        },
+
+        // 👉 Tri dynamique
+        ...(sort ? [{ $sort: sortQuery }] : []),
+
+        // Pagination
+        { $skip: skip },
+        { $limit: limit },
+    ]);
+
+
+        // Compte total
+        const total = await Session.countDocuments();
+
+        return { sessions, total };
+
+    } catch (err) {
+        return next(err);
+    }
+},
+
 
 
     getOneSessionId: async (idSearch) => {
         const session = await Session.findById(idSearch)
-            .populate('player')
+            .populate('player', '-password')
             .populate('game');
 
         if (!session) {
@@ -144,7 +209,7 @@ const sessionsServices = {
             session.game = game;
         }
 
-        if (score) {
+        if (score !== undefined) {
             session.score = score;
         }
 

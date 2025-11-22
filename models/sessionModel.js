@@ -42,39 +42,47 @@ sessionSchema.virtual('durationSeconds').get(function () {
 sessionSchema.pre('save', async function (next) {
     try {
         if (this.isNew) {
-            this._scoreDelta = this.score; // mark for post-save
+            this._justClosed = false;
             return next();
         }
-        // not new -> fetch previous document to compute delta
-        const orig = await this.constructor.findById(this._id).lean();
-        if (!orig) {
-            this._scoreDelta = this.score;
+
+        const orig = await this.constructor.findById(this._id);
+
+        // Détection : session fermée
+        if (orig && orig.active === true && this.active === false) {
+            this._justClosed = true;
         } else {
-            this._scoreDelta = this.score - (orig.score || 0);
+            this._justClosed = false;
         }
-        return next();
+
+        next();
     } catch (err) {
-        return next(err);
+        next(err);
     }
 });
-
 
 sessionSchema.post('save', async function (doc) {
     try {
-        const delta = this._scoreDelta || 0;
-        if (delta !== 0) {
-            await Player.findByIdAndUpdate(doc.player, { $inc: { totalScore: delta }, $addToSet: { sessions: doc._id } });
+        if (this._justClosed) {
+            await Player.findByIdAndUpdate(doc.player, {
+                $inc: { totalScore: doc.score },
+                $addToSet: { sessions: doc._id }
+            });
         } else {
-            // still ensure session id present on create/update
-            await Player.findByIdAndUpdate(doc.player, { $addToSet: { sessions: doc._id } });
+            // Juste s'assurer que la session est bien rattachée
+            await Player.findByIdAndUpdate(doc.player, {
+                $addToSet: { sessions: doc._id }
+            });
         }
-        // Ensure game has a reference to the session
-        await Game.findByIdAndUpdate(doc.game, { $addToSet: { sessions: doc._id } });
+
+        await Game.findByIdAndUpdate(doc.game, {
+            $addToSet: { sessions: doc._id }
+        });
+
     } catch (err) {
-        throw err;
+        console.error(err);
     }
 });
-
 
 sessionSchema.post('findOneAndDelete', async function (doc) {
     try {
