@@ -144,7 +144,7 @@ const sessionsServices = {
             session.game = game;
         }
 
-        if (score) {
+        if (score !== undefined) {
             session.score = score;
         }
 

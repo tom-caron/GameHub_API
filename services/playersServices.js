@@ -30,7 +30,6 @@ const playerService = {
     getOnePlayerId: async (idSearch) => {
         const player = await Player
             .findById(idSearch)
-            .populate('sessions')
             .select('-password');
 
         if (!player) {

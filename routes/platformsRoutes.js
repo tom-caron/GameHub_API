@@ -9,7 +9,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 /**
  * @swagger
  * tags:
- *   name: CRUD Platform
+ *   name: Platform
  *   description: Gestion des informations des plateformes
  */
 
@@ -155,6 +155,25 @@ router.post('', authMiddleware.authorizeRoles(['admin']), validate(platformCreat
  *                 code:
  *                   type: integer
  *                   example: 200
+ *       401:
+ *         description: Vous devez être connecté pour accéder à cette ressource
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Error"
+ *                 message:
+ *                   type: string
+ *                   example: "Vous devez être connecté pour accéder à cette ressource"
+ *                 timestamp:
+ *                   type: string
+ *                   example: "2023-10-05T12:34:56.789Z"
+ *                 path:
+ *                  type: string
+ *                  example: "/api/platforms/"    
  * 
  */
 router.get('', authMiddleware.authorizeRoles(['admin', 'player']), platformsController.getAllPlatforms);
@@ -242,8 +261,8 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), platforms
 /**
  * @swagger
  * /platforms/{id}:
- *   post:
- *     summary: Permet de modifer les informations d'une platform (admin)
+ *   put:
+ *     summary: Permet de modifer les informations d'une platforme (admin)
  *     tags: [Platform]
  *     requestBody:
  *       required: true
@@ -296,6 +315,25 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), platforms
  *                 path:
  *                  type: string
  *                  example: "platforms/{id}"
+ *       401:
+ *         description: Vous devez être connecté pour accéder à cette ressource
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Error"
+ *                 message:
+ *                   type: string
+ *                   example: "Vous devez être connecté pour accéder à cette ressource"
+ *                 timestamp:
+ *                   type: string
+ *                   example: "2023-10-05T12:34:56.789Z"
+ *                 path:
+ *                  type: string
+ *                  example: "/api/platforms/"
  *       404:
  *         description: Plateforme introuvable
  *         content:

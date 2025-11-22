@@ -9,7 +9,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 /**
  * @swagger
  * tags:
- *   name: CRUD Genre
+ *   name: Genre
  *   description: Gestion des informations des genres de jeux
  */
 
@@ -155,6 +155,25 @@ router.post('', authMiddleware.authorizeRoles(['admin']), validate(genreCreateSc
  *                 code:
  *                   type: integer
  *                   example: 200
+ *       401:
+ *         description: Vous devez être connecté pour accéder à cette ressource
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Error"
+ *                 message:
+ *                   type: string
+ *                   example: "Vous devez être connecté pour accéder à cette ressource"
+ *                 timestamp:
+ *                   type: string
+ *                   example: "2023-10-05T12:34:56.789Z"
+ *                 path:
+ *                  type: string
+ *                  example: "/api/genres"      
  * 
  */
 router.get('', authMiddleware.authorizeRoles(['admin', 'player']), genresController.getAllGenres);
@@ -164,7 +183,7 @@ router.get('', authMiddleware.authorizeRoles(['admin', 'player']), genresControl
  * /api/genres/{id}:
  *   get:
  *     summary: Récupère un genre de jeux par son identifiant
- *     tags: [Platform]
+ *     tags: [Genre]
  *     parameters:
  *       - in: path
  *         name: id
@@ -242,7 +261,7 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), genresCon
 /**
  * @swagger
  * /genres/{id}:
- *   post:
+ *   put:
  *     summary: Permet de modifer les informations dun genre de jeu (admin)
  *     tags: [Genre]
  *     requestBody:

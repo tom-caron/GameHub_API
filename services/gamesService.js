@@ -133,7 +133,7 @@ const gamesServices = {
         const genreExists = await Genre.findById(genre);
         if (!genreExists) {
             const err = new Error('Genre avec l\'ID spécifié introuvable');
-            err.status = 400;
+            err.status = 409;
             throw err;
         }
 
@@ -141,7 +141,7 @@ const gamesServices = {
         const platformExists = await Platform.findById(platform);
         if (!platformExists) {
             const err = new Error('Plateforme avec l\'ID spécifié introuvable');
-            err.status = 400;
+            err.status = 409;
             throw err;
         }
 

@@ -22,10 +22,6 @@ const GameSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Platform'
     },
-    sessions: [{ 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Session' 
-    }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Game', GameSchema);

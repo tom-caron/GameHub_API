@@ -23,10 +23,6 @@ const PlayerSchema = new mongoose.Schema({
     minlength: 6,
     maxlength: 100
   },
-  sessions: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Session'
-  }],
   totalScore: {
     type: Number,
     default: 0

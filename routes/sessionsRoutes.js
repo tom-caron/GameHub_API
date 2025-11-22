@@ -9,7 +9,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 /**
  * @swagger
  * tags:
- *   name: CRUD Seesion
+ *   name: Session
  *   description: Gestion des informations des sessions de jeu
  */
 
@@ -244,7 +244,7 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), sessionsC
 /**
  * @swagger
  * /api/sessions/{id}:
- *   post:
+ *   put:
  *     summary: Permet de modifer les informations d'une session de jeu (admin ou soi-même)
  *     tags: [Session]
  *     requestBody:

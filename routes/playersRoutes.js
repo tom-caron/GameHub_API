@@ -9,7 +9,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 /**
  * @swagger
  * tags:
- *   name: CRUD Player
+ *   name: Player
  *   description: Gestion des informations des joueurs
  */
 
@@ -27,7 +27,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
  *             schema:
  *               type: object
  *               properties:
- *                 authors:
+ *                 players:
  *                   type: object
  *                   properties:
  *                     id:
@@ -41,13 +41,41 @@ const authMiddleware = require('../middlewares/authMiddleware');
  *                       example: "admin"
  *                     email:
  *                       type: string
- *                       example: test@gmail.com"
+ *                       example: "test@gmail.com"
+ *                     totalScore:
+ *                       type: integer
+ *                       example: 1500
+ *                     createdAt:
+ *                       type: string
+ *                       example: "2023-10-05T12:34:56.789Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       example: "2023-10-05T12:34:56.789Z"
  *                 message:
  *                   type: string
  *                   example: "Liste des joueurs récupérées avec succès"
  *                 code:
  *                   type: integer
  *                   example: 200
+ *       401:
+ *         description: Vous devez être connecté pour accéder à cette ressource
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Error"
+ *                 message:
+ *                   type: string
+ *                   example: "Vous devez être connecté pour accéder à cette ressource"
+ *                 timestamp:
+ *                   type: string
+ *                   example: "2023-10-05T12:34:56.789Z"
+ *                 path:
+ *                  type: string
+ *                  example: "/api/players/"
  * 
  */
 router.get('', authMiddleware.authorizeRoles(['admin', 'player']), playersController.getAllPlayers);
@@ -138,7 +166,7 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), playersCo
 /**
  * @swagger
  * /players/{id}:
- *   post:
+ *   put:
  *     summary: Permet de modifer les informations d'un joueur (admin ou soi-même)
  *     tags: [Player]
  *     requestBody:
@@ -164,7 +192,7 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), playersCo
  *               role:
  *                 type: string
  *                 description: Rôle de l'utilisateur
- *                 example: "user"
+ *                 example: "admin"
  *               username:
  *                 type: string
  *                 description: Nom d'utilisateur

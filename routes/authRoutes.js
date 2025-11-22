@@ -128,11 +128,11 @@ router.post('/login', validate(playerConnectSchema), authController.login);
  *               role:
  *                 type: string
  *                 description: Rôle de l'utilisateur
- *                 example: "user"
+ *                 example: "admin"
  *               username:
  *                 type: string
  *                 description: Nom d'utilisateur
- *                 example: "Coyototo27"
+ *                 example: "Bot123"
  *     responses:
  *       201:
  *         description: Joueur créé avec succès
@@ -170,6 +170,47 @@ router.post('/login', validate(playerConnectSchema), authController.login);
  */
 router.post('/register', validate(playerCreateSchema), authController.register);
 
+/**
+ * @swagger
+ * /auth/me:
+ *   get:
+ *     summary: Permet de récupérer les informations du joueur connecté
+ *     tags: [Authentification des joueurs]
+ *     responses:
+ *       200:
+ *         description: Informations récupérées avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Informations récupérées avec succès"
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       404:
+ *         description: Player introuvable
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Error"
+ *                 message:
+ *                   type: string
+ *                   example: "Player introuvable"
+ *                 timestamp:
+ *                   type: string
+ *                   example: "2023-10-05T12:34:56.789Z"
+ *                 path:
+ *                  type: string
+ *                  example: "auth/me"
+ * 
+ */
 router.get('/me', authMiddleware.authenticate, authController.getMe);
 
 

@@ -9,7 +9,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 /**
  * @swagger
  * tags:
- *   name: CRUD Game
+ *   name: Game
  *   description: Gestion des informations des Jeux
  */
 
@@ -91,7 +91,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
  *                   example: "Error"
  *                 message:
  *                   type: string
- *                   example: "Le champ title et slug est requis"
+ *                   example: "Le champ title, slug, genre et platform est requis"
  *                 timestamp:
  *                   type: string
  *                   example: "2023-10-05T12:34:56.789Z"
@@ -136,6 +136,25 @@ const authMiddleware = require('../middlewares/authMiddleware');
  *                 path:
  *                  type: string
  *                  example: "/api/games/"
+ *       409:
+ *         description: Conflit lors de la création du jeu (titre ou slug déjà utilisé, genre ou plateforme introuvable)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Error"
+ *                 message:
+ *                   type: string
+ *                   example: "Plateforme avec l'ID spécifié introuvable"
+ *                 timestamp:
+ *                   type: string
+ *                   example: "2023-10-05T12:34:56.789Z"
+ *                 path:
+ *                  type: string
+ *                  example: "/api/games/"   
  */
 router.post('', authMiddleware.authorizeRoles(['admin']), validate(gameCreateSchema), gamesController.createGame);
 
@@ -177,6 +196,25 @@ router.post('', authMiddleware.authorizeRoles(['admin']), validate(gameCreateSch
  *                 code:
  *                   type: integer
  *                   example: 200
+ *       401:
+ *         description: Vous devez être connecté pour accéder à cette ressource
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Error"
+ *                 message:
+ *                   type: string
+ *                   example: "Vous devez être connecté pour accéder à cette ressource"
+ *                 timestamp:
+ *                   type: string
+ *                   example: "2023-10-05T12:34:56.789Z"
+ *                 path:
+ *                  type: string
+ *                  example: "/api/games/"       
  * 
  */
 router.get('', authMiddleware.authorizeRoles(['admin', 'player']), gamesController.getAllGames);
@@ -270,7 +308,7 @@ router.get('/:id', authMiddleware.authorizeRoles(['admin', 'player']), gamesCont
 /**
  * @swagger
  * /api/games/{id}:
- *   post:
+ *   put:
  *     summary: Permet de modifer les informations d'un jeu (admin)
  *     tags: [Game]
  *     requestBody:
