@@ -112,6 +112,11 @@ const playerService = {
         return player;
     },
 
+    countPlayers: async () => {
+        const count = await Player.countDocuments();
+        return count;
+    },
+
 };
 
 module.exports = playerService;

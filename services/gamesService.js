@@ -220,6 +220,11 @@ const gamesServices = {
         await Game.findByIdAndDelete(id);
     },
 
+    countGames : async () => {
+        const count = await Game.countDocuments();
+        return count;
+    },
+
 };
 
 module.exports = gamesServices;

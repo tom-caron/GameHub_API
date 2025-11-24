@@ -8,6 +8,12 @@ const sessionCreateSchema = Joi.object({
     game: Joi.string()
         .allow(null)
         .required(),
+
+    active: Joi.boolean()
+        .allow(null),
+
+    score: Joi.number()
+        .allow(null),
 });
 
 const sessionUpdateSchema = Joi.object({

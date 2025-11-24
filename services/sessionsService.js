@@ -8,6 +8,11 @@ const sessionsServices = {
     try {
         // Définition du tri
         let sortQuery = {};
+
+        if (!sort) {
+            sort = '-createdAt';
+            }
+            
         if (sort) {
             const order = sort.startsWith('-') ? -1 : 1;
             const field = sort.replace('-', '');
@@ -231,6 +236,11 @@ const sessionsServices = {
         }
 
         await Session.findByIdAndDelete(id);
+    },
+
+    countSessions: async () => {
+        const count = await Session.countDocuments();
+        return count;
     },
 
 };

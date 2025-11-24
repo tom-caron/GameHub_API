@@ -136,7 +136,12 @@ const genresService = {
         } catch (err) {
             throw err;
         }
-    }
+    },
+
+    countGenres : async () => {
+        const count = await Genre.countDocuments();
+        return count;
+    },
 
 };
 

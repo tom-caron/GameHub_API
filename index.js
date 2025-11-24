@@ -13,6 +13,7 @@ const platformsRoutes = require('./routes/platformsRoutes');
 const genresRoutes = require('./routes/genresRoutes');
 const gamesRoutes = require('./routes/gamesRoutes');
 const sessionsRoutes = require('./routes/sessionsRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 
 connectDB();
 setupSwagger(app);
@@ -35,6 +36,7 @@ app.use('/api/platforms', platformsRoutes);
 app.use('/api/genres', genresRoutes);
 app.use('/api/games', gamesRoutes);
 app.use('/api/sessions', sessionsRoutes);
+app.use('/api/stats', statsRoutes);
 
 
 

@@ -151,7 +151,12 @@ const platformsService = {
         } catch (err) {
             throw err;
         }
-    }
+    },
+
+    countPlatforms: async () => {
+        const count = await Platform.countDocuments();
+        return count;
+    },
 
 };
 
