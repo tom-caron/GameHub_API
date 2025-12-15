@@ -52,7 +52,7 @@ const platformsService = {
             if (!name || !slug) {
                 const err = new Error('Le champ name et slug est requis');
                 err.status = 400;
-                return next(err);
+                throw err;
             }
 
             // Vérifie si une plateforme existe déjà avec le même nom ou le même slug
@@ -63,14 +63,14 @@ const platformsService = {
             if (existingPlatform) {
             const err = new Error('Une plateforme avec ce nom ou ce slug existe déjà');
             err.status = 409; // 409 = Conflict
-            return next(err);
+            throw err;
             }
 
             const platform = await Platform.create({ name, slug });
             return platform;
 
         } catch (err) {
-            return next(err);
+            throw err;
         }
     },
 
