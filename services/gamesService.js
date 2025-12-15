@@ -205,6 +205,12 @@ const gamesServices = {
         }
 
         await game.save();
+
+        await game.populate([
+        { path: 'genre' },
+        { path: 'platform' }
+        ]);
+        
         return game;
     },
 
