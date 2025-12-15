@@ -121,7 +121,7 @@ const genresService = {
 
             
             // vérifier s’il a des livres associés
-            const gamesByGenre = await Game.find({ platform: id });
+            const gamesByGenre = await Game.find({ genre: id });
             
             if (gamesByGenre.length > 0) {
                 const err = new Error('Impossible de supprimer un genre ayant des jeux associés');
